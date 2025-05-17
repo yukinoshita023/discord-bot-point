@@ -1,10 +1,12 @@
 import discord
 from config import TOKEN
-from commands import setup_commands  
+from commands import setup_commands
+from voice_state_tracker import handle_voice_state_update
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.voice_states = True
+intents.members = True
 
 class MyBot(discord.Client):
     def __init__(self):
@@ -24,5 +26,9 @@ bot = MyBot()
 @bot.event
 async def on_ready():
     print(f"ログインしました: {bot.user}")
+
+@bot.event
+async def on_voice_state_update(member, before, after):
+    await handle_voice_state_update(member, before, after)
 
 bot.run(TOKEN)
