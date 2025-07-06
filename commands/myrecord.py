@@ -3,7 +3,7 @@ from firebase_config import db
 
 async def setup(bot):
 
-    @bot.tree.command(name="myrecord", description="自分の保有ポイントと通話時間を見ることができます")
+    @bot.tree.command(name="myrecord", description="自分のと通話記録を見ることができます")
     async def myrecord(interaction: discord.Interaction):
         user_id = str(interaction.user.id)
 
@@ -14,7 +14,7 @@ async def setup(bot):
             if doc.exists:
                 data = doc.to_dict()
             else:
-                data = {}  # ドキュメントが存在しない場合も空データとして扱う
+                data = {}
 
             points = data.get("points")
             if points is None:
@@ -26,10 +26,10 @@ async def setup(bot):
             for cat in categories:
                 point = points.get(cat, 0)
                 minutes = point * 5
-                response_lines.append(f"**{cat}**：{point} ポイント（{minutes} 分）")
+                response_lines.append(f"**{cat}**：{minutes} 分")
 
             message = "\n".join(response_lines)
-            await interaction.response.send_message(f"{interaction.user.mention} さんの記録：\n{message}")
+            await interaction.response.send_message(f"{interaction.user.mention} さんの通話記録：\n{message}")
 
         except Exception as e:
             print(f"[myrecord] エラー: {e}")
