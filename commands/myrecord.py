@@ -3,7 +3,7 @@ from firebase_config import db
 
 async def setup(bot):
 
-    @bot.tree.command(name="myrecord", description="自分のと通話記録を見ることができます")
+    @bot.tree.command(name="myrecord", description="自分の通話記録を見ることができます")
     async def myrecord(interaction: discord.Interaction):
         user_id = str(interaction.user.id)
 

@@ -19,7 +19,6 @@ class MyBot(discord.Client):
 
         await self.tree.sync()
         print("スラッシュコマンドを同期しました")
-    
 
 bot = MyBot()
 
