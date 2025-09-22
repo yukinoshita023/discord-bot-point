@@ -30,7 +30,7 @@ async def handle_voice_state_update(member: discord.Member, before, after):
 
     elif before.channel and before.channel.category_id in CATEGORY_VC_MAPPING:
         if user_id in user_states:
-            print(f"[LOG] {member.display_name} が「{CATEGORY_VC_MAPPING[before.channel.category_id]}」カテゴリから退出しました。")
+            print(f"{member.display_name} が「{CATEGORY_VC_MAPPING[before.channel.category_id]}」カテゴリから退出しました。")
             user_states.pop(user_id)
 
         if user_id in user_tasks:
