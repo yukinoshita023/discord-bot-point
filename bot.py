@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands
 from config import TOKEN
 from commands import setup_commands
 from voice_state_tracker import handle_voice_state_update
@@ -9,10 +10,10 @@ intents.message_content = True
 intents.voice_states = True
 intents.members = True
 
-class MyBot(discord.Client):
+class MyBot(commands.Bot):
     def __init__(self):
-        super().__init__(intents=intents)
-        self.tree = discord.app_commands.CommandTree(self)
+
+        super().__init__(command_prefix="!", intents=intents)
 
     async def setup_hook(self):
         await setup_commands(self)
@@ -31,12 +32,10 @@ async def on_ready():
 async def on_voice_state_update(member, before, after):
     await handle_voice_state_update(member, before, after)
 
-# 追加: リアクション追加（カウント+1）
 @bot.event
 async def on_raw_reaction_add(payload: discord.RawReactionActionEvent):
     await handle_reaction_add(bot, payload)
 
-# 任意: リアクション削除（カウント-1したいなら有効化）
 @bot.event
 async def on_raw_reaction_remove(payload: discord.RawReactionActionEvent):
     await handle_reaction_remove(bot, payload)
