@@ -57,6 +57,9 @@ async def grant_points_loop(user_id):
             current = points.get(category_name, 0)
             points[category_name] = current + 1
 
+            WAKUSEI_KEY = "わくせい"
+            points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + 1
+
             user_ref.set({"points": points}, merge=True)
 
     except asyncio.CancelledError:
