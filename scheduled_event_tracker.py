@@ -4,6 +4,8 @@ from firebase_config import db
 from config import NOTIFICATION_CHANNEL_ID
 
 EVENT_KEY = "イベント"
+WAKUSEI_KEY = "わくせい"
+WAKUSEI_EVENT_BONUS = 30
 
 async def handle_scheduled_event_create(bot: discord.Client, event: discord.ScheduledEvent) -> None:
     creator = event.creator
@@ -13,12 +15,13 @@ async def handle_scheduled_event_create(bot: discord.Client, event: discord.Sche
     user_ref = db.collection("users").document(str(creator.id))
 
     snap = user_ref.get()
-    current = 0
-    if snap.exists:
-        current = int(snap.to_dict().get("points", {}).get(EVENT_KEY, 0))
-    new_value = current + 1
+    data = snap.to_dict() if snap.exists else {}
+    points = data.get("points", {})
 
-    user_ref.set({"points": {EVENT_KEY: new_value}}, merge=True)
+    new_event = int(points.get(EVENT_KEY, 0)) + 1
+    new_wakusei = int(points.get(WAKUSEI_KEY, 0)) + WAKUSEI_EVENT_BONUS
+
+    user_ref.set({"points": {EVENT_KEY: new_event, WAKUSEI_KEY: new_wakusei}}, merge=True)
 
     channel = bot.get_channel(NOTIFICATION_CHANNEL_ID)
     if channel is None:
@@ -28,7 +31,8 @@ async def handle_scheduled_event_create(bot: discord.Client, event: discord.Sche
     try:
         await channel.send(
             f"{creator.mention} の{EVENT_KEY}値を **+1** しました\n"
-            f"{creator.mention} の{EVENT_KEY}値は現在 **{new_value}** です"
+            f"{creator.mention} の{EVENT_KEY}値は現在 **{new_event}** です\n"
+            f"{creator.mention} のわくせいポイントに **+{WAKUSEI_EVENT_BONUS}** 付与しました（現在 **{new_wakusei}** pt）"
         )
     except discord.Forbidden:
         print(f"チャンネル {NOTIFICATION_CHANNEL_ID} への送信権限がありません")
