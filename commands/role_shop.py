@@ -6,6 +6,7 @@ from firebase_config import db
 from config import ADMIN_ROLE_ID
 
 SHOP_CHANNEL_ID = 1513541236261257306
+IMAGE_PATH = "images/PLANET-description.png"
 GOLD_ROLE_ID = 1513536556323963110
 WAKUSEI_KEY = "わくせい"
 REQUIRED_POINTS = 100_000
@@ -16,8 +17,7 @@ class BuyRoleButton(discord.ui.Button):
         super().__init__(
             label="PLANETロールを購入する",
             style=discord.ButtonStyle.success,
-            emoji="⭐",
-            custom_id="buy_gold_role",
+            custom_id="buy_planet_role",
         )
 
     async def callback(self, interaction: discord.Interaction):
@@ -72,8 +72,8 @@ class RoleShop(commands.Cog):
     def __init__(self, bot: discord.Client):
         self.bot = bot
 
-    @app_commands.command(name="post_role_shop", description="ロールショップメッセージをチャンネルに投稿します（管理者専用）")
-    async def post_role_shop(self, interaction: discord.Interaction):
+    @app_commands.command(name="post_wakusei_role_shop", description="ロールショップメッセージをチャンネルに投稿します（管理者専用）")
+    async def post_wakusei_role_shop(self, interaction: discord.Interaction):
         if not isinstance(interaction.user, discord.Member) or not any(r.id == ADMIN_ROLE_ID for r in interaction.user.roles):
             return await interaction.response.send_message("権限がありません", ephemeral=True)
 
@@ -81,16 +81,8 @@ class RoleShop(commands.Cog):
         if not isinstance(channel, discord.TextChannel):
             return await interaction.response.send_message("チャンネルが見つかりませんでした。", ephemeral=True)
 
-        embed = discord.Embed(
-            title="⭐ PLANETロール",
-            description=(
-                f"わくせいポイント **{REQUIRED_POINTS:,} pt** で購入できます。\n"
-                "このロールを付けるとメイシがゴールドになって豪華になります✨"
-            ),
-            color=discord.Color.gold(),
-        )
-
-        await channel.send(embed=embed, view=RoleShopView())
+        await channel.send(file=discord.File(IMAGE_PATH))
+        await channel.send(view=RoleShopView())
         await interaction.response.send_message("ショップメッセージを投稿しました！", ephemeral=True)
 
 

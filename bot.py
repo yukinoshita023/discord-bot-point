@@ -2,9 +2,9 @@ import discord
 from discord.ext import commands
 from config import TOKEN
 from commands import setup_commands
-from voice_state_tracker import handle_voice_state_update
-from reaction_tracker import handle_reaction_add, handle_reaction_remove
-from scheduled_event_tracker import handle_scheduled_event_create
+from features.voice_state_tracker import handle_voice_state_update
+from features.reaction_tracker import handle_reaction_add, handle_reaction_remove
+from features.scheduled_event_tracker import handle_scheduled_event_create
 
 intents = discord.Intents.default()
 intents.message_content = True
