@@ -40,7 +40,7 @@ async def handle_voice_state_update(member: discord.Member, before, after):
 async def grant_points_loop(user_id):
     try:
         while user_id in user_states:
-            await asyncio.sleep(3600)  # 60分
+            await asyncio.sleep(600)  # 10分
 
             category_id = user_states[user_id]["category_id"]
             category_name = CATEGORY_VC_MAPPING[category_id]
@@ -55,10 +55,10 @@ async def grant_points_loop(user_id):
                 points = {}
 
             current = points.get(category_name, 0)
-            points[category_name] = current + 1
+            points[category_name] = current + 7
 
             WAKUSEI_KEY = "わくせい"
-            points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + 1
+            points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + 7
 
             user_ref.set({"points": points}, merge=True)
 
