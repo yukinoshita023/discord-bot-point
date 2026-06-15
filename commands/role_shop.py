@@ -50,14 +50,14 @@ class BuyRoleButton(discord.ui.Button):
             needed = REQUIRED_POINTS - cur
             return await interaction.response.send_message(
                 f"わくせいポイントが足りません。\n"
-                f"現在：**{cur:,} pt** ／ 必要：**{REQUIRED_POINTS:,} pt**（あと **{needed:,} pt** 不足）",
+                f"現在：**{cur:,} wp** ／ 必要：**{REQUIRED_POINTS:,} wp**（あと **{needed:,} wp** 不足）",
                 ephemeral=True,
             )
 
         await member.add_roles(role, reason="わくせいポイントによるPLANETロール購入")
         await interaction.response.send_message(
             f"🎉 PLANETロールを購入しました！\n"
-            f"残りわくせいポイント：**{new_val:,} pt**",
+            f"残りわくせいポイント：**{new_val:,} wp**",
             ephemeral=True,
         )
 
