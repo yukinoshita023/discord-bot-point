@@ -20,7 +20,8 @@ async def handle_voice_state_update(member: discord.Member, before, after):
 
             user_states[user_id] = {
                 "joined_at": datetime.utcnow(),
-                "category_id": category_id
+                "category_id": category_id,
+                "guild": member.guild
             }
 
             print(f"{member.display_name} が「{CATEGORY_VC_MAPPING[category_id]}」カテゴリに入室しました。")
@@ -44,6 +45,11 @@ async def grant_points_loop(user_id):
 
             category_id = user_states[user_id]["category_id"]
             category_name = CATEGORY_VC_MAPPING[category_id]
+            guild = user_states[user_id]["guild"]
+
+            guild_member = guild.get_member(int(user_id))
+            multiplier = 2 if (guild_member and guild_member.premium_since) else 1
+            gain = 7 * multiplier
 
             user_ref = db.collection("users").document(user_id)
             doc = user_ref.get()
@@ -55,10 +61,10 @@ async def grant_points_loop(user_id):
                 points = {}
 
             current = points.get(category_name, 0)
-            points[category_name] = current + 7
+            points[category_name] = current + gain
 
             WAKUSEI_KEY = "わくせい"
-            points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + 7
+            points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + gain
 
             user_ref.set({"points": points}, merge=True)
 
