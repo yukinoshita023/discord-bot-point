@@ -15,7 +15,7 @@ class WakuseiPoint(commands.Cog):
     def _has_manager_role(member: discord.Member) -> bool:
         return any(role.id == ADMIN_ROLE_ID for role in member.roles)
 
-    @app_commands.command(name="wakusei_point", description="対象ユーザーのわくせいポイントを増減します（管理者専用）")
+    @app_commands.command(name="add_wakusei", description="対象ユーザーのわくせいポイントを増減します（管理者専用）")
     @app_commands.describe(user="対象ユーザー", amount="付与するポイント数（マイナスで減算）")
     async def wakusei_point(self, interaction: discord.Interaction, user: discord.Member, amount: int):
         if not isinstance(interaction.user, discord.Member) or not self._has_manager_role(interaction.user):
