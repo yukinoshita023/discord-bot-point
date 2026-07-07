@@ -5,12 +5,12 @@ from firebase_config import db
 
 WAKUSEI_KEY = "わくせい"
 
-class ViewWakusei(commands.Cog):
+class ViewWakuseiPoint(commands.Cog):
     def __init__(self, bot: discord.Client):
         self.bot = bot
 
-    @app_commands.command(name="view_wakusei", description="自分のわくせいポイントを確認します")
-    async def view_wakusei(self, interaction: discord.Interaction):
+    @app_commands.command(name="view_wakusei_point", description="自分のわくせいポイントを確認します")
+    async def view_wakusei_point(self, interaction: discord.Interaction):
         user_id = str(interaction.user.id)
         ref = db.collection("users").document(user_id)
         snap = ref.get()
@@ -24,4 +24,4 @@ class ViewWakusei(commands.Cog):
         )
 
 async def setup(bot: discord.Client):
-    await bot.add_cog(ViewWakusei(bot))
+    await bot.add_cog(ViewWakuseiPoint(bot))
