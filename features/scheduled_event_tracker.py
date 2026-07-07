@@ -5,16 +5,14 @@ from config import NOTIFICATION_CHANNEL_ID
 
 EVENT_KEY = "イベント"
 WAKUSEI_KEY = "わくせい"
-WAKUSEI_EVENT_BONUS = 300
+WAKUSEI_EVENT_BONUS = 1000
 
 async def handle_scheduled_event_create(bot: discord.Client, event: discord.ScheduledEvent) -> None:
     creator = event.creator
     if creator is None or creator.bot:
         return
 
-    guild_member = event.guild.get_member(creator.id) if event.guild else None
-    multiplier = 2 if (guild_member and guild_member.premium_since) else 1
-    bonus = WAKUSEI_EVENT_BONUS * multiplier
+    bonus = WAKUSEI_EVENT_BONUS
 
     user_ref = db.collection("users").document(str(creator.id))
 
@@ -33,11 +31,10 @@ async def handle_scheduled_event_create(bot: discord.Client, event: discord.Sche
         return
 
     try:
-        booster_note = "（サーバーブースター 2倍ボーナス！）" if multiplier == 2 else ""
         await channel.send(
             f"{creator.mention} の{EVENT_KEY}値を **+1** しました\n"
             f"{creator.mention} の{EVENT_KEY}値は現在 **{new_event}** です\n"
-            f"{creator.mention} のわくせいポイントに **+{bonus}** 付与しました{booster_note}（現在 **{new_wakusei}** pt）"
+            f"{creator.mention} のわくせいポイントに **+{bonus}** 付与しました（現在 **{new_wakusei}** pt）"
         )
     except discord.Forbidden:
         print(f"チャンネル {NOTIFICATION_CHANNEL_ID} への送信権限がありません")
