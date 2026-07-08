@@ -3,6 +3,7 @@ from discord.ext import commands
 from config import TOKEN
 from commands import setup_commands
 from features.voice_state_tracker import handle_voice_state_update
+from features.login_bonus import handle_login_bonus
 from features.reaction_tracker import handle_reaction_add, handle_reaction_remove
 from features.scheduled_event_tracker import handle_scheduled_event_create
 
@@ -32,6 +33,7 @@ async def on_ready():
 
 @bot.event
 async def on_voice_state_update(member, before, after):
+    await handle_login_bonus(bot, member, before, after)
     await handle_voice_state_update(member, before, after)
 
 @bot.event
