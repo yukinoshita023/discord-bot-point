@@ -49,7 +49,7 @@ async def grant_points_loop(user_id):
 
             guild_member = guild.get_member(int(user_id))
             multiplier = 2 if (guild_member and guild_member.premium_since) else 1
-            gain = 7 * multiplier
+            gain = 20 * multiplier
 
             user_ref = db.collection("users").document(user_id)
             doc = user_ref.get()
