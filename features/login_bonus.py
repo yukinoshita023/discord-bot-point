@@ -1,7 +1,6 @@
 import discord
 from datetime import datetime, timezone, timedelta
 from firebase_config import db
-from config import NOTIFICATION_CHANNEL_ID
 
 WAKUSEI_KEY = "わくせい"
 LOGIN_BONUS = 500
@@ -38,14 +37,10 @@ async def handle_login_bonus(bot: discord.Client, member: discord.Member, before
 
     print(f"{member.display_name} にログインボーナス {LOGIN_BONUS}WP を付与しました")
 
-    channel = bot.get_channel(NOTIFICATION_CHANNEL_ID)
-    if channel is None:
-        print(f"通知チャンネルが見つかりません (ID: {NOTIFICATION_CHANNEL_ID})")
-        return
-
+    # 入室した通話部屋内のテキストチャットに通知する
     try:
-        await channel.send(
+        await after.channel.send(
             f"🎁 **{member.display_name}** さんがログインボーナス **+{LOGIN_BONUS}** WP を獲得しました！（現在 **{new_wakusei}** pt）"
         )
     except discord.Forbidden:
-        print(f"チャンネル {NOTIFICATION_CHANNEL_ID} への送信権限がありません")
+        print(f"チャンネル {after.channel.name} への送信権限がありません")
