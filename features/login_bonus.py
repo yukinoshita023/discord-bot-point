@@ -1,6 +1,7 @@
 import discord
 from datetime import datetime, timezone, timedelta
 from firebase_config import db
+from config import LOGIN_BONUS_EXCLUDED_VC_IDS
 
 WAKUSEI_KEY = "わくせい"
 LOGIN_BONUS = 500
@@ -12,6 +13,10 @@ async def handle_login_bonus(bot: discord.Client, member: discord.Member, before
 
     # 通話部屋への入室でなければ対象外
     if after.channel is None:
+        return
+
+    # 自由作成部屋は対象外
+    if after.channel.id in LOGIN_BONUS_EXCLUDED_VC_IDS:
         return
 
     today = datetime.now(JST).strftime("%Y-%m-%d")
