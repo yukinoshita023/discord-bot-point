@@ -5,7 +5,7 @@ from config import NOTIFICATION_CHANNEL_ID
 
 EVENT_KEY = "イベント"
 WAKUSEI_KEY = "わくせい"
-WAKUSEI_EVENT_BONUS = 1000
+WAKUSEI_EVENT_BONUS = 5000
 
 async def handle_scheduled_event_create(bot: discord.Client, event: discord.ScheduledEvent) -> None:
     creator = event.creator
