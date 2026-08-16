@@ -25,7 +25,7 @@ async def setup(bot):
 
             for cat in categories:
                 point = points.get(cat, 0)
-                minutes = point * 10
+                minutes = point * 5
                 response_lines.append(f"**{cat}**：{minutes} 分")
 
             message = "\n".join(response_lines)
