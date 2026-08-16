@@ -49,7 +49,7 @@ async def grant_points_loop(user_id):
 
             guild_member = guild.get_member(int(user_id))
             multiplier = 2 if (guild_member and guild_member.premium_since) else 1
-            gain = 20 * multiplier
+            wakusei_gain = 20 * multiplier
 
             user_ref = db.collection("users").document(user_id)
             doc = user_ref.get()
@@ -60,11 +60,12 @@ async def grant_points_loop(user_id):
             else:
                 points = {}
 
+            # カテゴリ別ポイントは時間情報のため、ブースターに関わらず10分ごとに+1固定
             current = points.get(category_name, 0)
-            points[category_name] = current + gain
+            points[category_name] = current + 1
 
             WAKUSEI_KEY = "わくせい"
-            points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + gain
+            points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + wakusei_gain
 
             user_ref.set({"points": points}, merge=True)
 
