@@ -5,7 +5,7 @@ from commands import setup_commands
 from features.voice_state_tracker import handle_voice_state_update
 from features.login_bonus import handle_login_bonus
 from features.reaction_tracker import handle_reaction_add, handle_reaction_remove
-from features.scheduled_event_tracker import handle_scheduled_event_create
+from features.scheduled_event_tracker import handle_scheduled_event_update
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -45,7 +45,7 @@ async def on_raw_reaction_remove(payload: discord.RawReactionActionEvent):
     await handle_reaction_remove(bot, payload)
 
 @bot.event
-async def on_scheduled_event_create(event: discord.ScheduledEvent):
-    await handle_scheduled_event_create(bot, event)
+async def on_scheduled_event_update(before: discord.ScheduledEvent, after: discord.ScheduledEvent):
+    await handle_scheduled_event_update(bot, before, after)
 
 bot.run(TOKEN)

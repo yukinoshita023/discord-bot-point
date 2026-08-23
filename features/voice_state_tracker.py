@@ -40,16 +40,14 @@ async def handle_voice_state_update(member: discord.Member, before, after):
 
 async def grant_points_loop(user_id):
     try:
+        tick = 0
         while user_id in user_states:
-            await asyncio.sleep(600)  # 10分
+            await asyncio.sleep(300)  # 5分
+            tick += 1
 
             category_id = user_states[user_id]["category_id"]
             category_name = CATEGORY_VC_MAPPING[category_id]
             guild = user_states[user_id]["guild"]
-
-            guild_member = guild.get_member(int(user_id))
-            multiplier = 2 if (guild_member and guild_member.premium_since) else 1
-            gain = 20 * multiplier
 
             user_ref = db.collection("users").document(user_id)
             doc = user_ref.get()
@@ -60,11 +58,17 @@ async def grant_points_loop(user_id):
             else:
                 points = {}
 
-            current = points.get(category_name, 0)
-            points[category_name] = current + gain
+            # カテゴリ別ポイントは時間情報のため、ブースターに関わらず5分ごとに+1固定
+            points[category_name] = points.get(category_name, 0) + 1
 
-            WAKUSEI_KEY = "わくせい"
-            points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + gain
+            # わくせいポイントは従来どおり10分（tick 2回）ごとに付与
+            if tick % 2 == 0:
+                guild_member = guild.get_member(int(user_id))
+                multiplier = 2 if (guild_member and guild_member.premium_since) else 1
+                wakusei_gain = 20 * multiplier
+
+                WAKUSEI_KEY = "わくせい"
+                points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + wakusei_gain
 
             user_ref.set({"points": points}, merge=True)
 
