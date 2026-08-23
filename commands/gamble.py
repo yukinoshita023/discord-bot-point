@@ -1,3 +1,5 @@
+from typing import Optional
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -27,11 +29,12 @@ def _add_points(tx, ref, amount: int) -> int:
 
 
 class GambleView(discord.ui.View):
-    def __init__(self, host: discord.Member, amount: int, voice_channel_id: int):
+    def __init__(self, host: discord.Member, amount: int, voice_channel_id: int, title: Optional[str] = None):
         super().__init__(timeout=1800)  # 30分
         self.host = host
         self.amount = amount
         self.voice_channel_id = voice_channel_id
+        self.title = title.strip() if title and title.strip() else "賭博会"
         self.participants: dict[int, discord.Member] = {}
         self.confirmed = False
         self.pot = 0
@@ -45,7 +48,7 @@ class GambleView(discord.ui.View):
     def build_embed(self) -> discord.Embed:
         names = "\n".join(m.display_name for m in self.participants.values()) or "（まだいません）"
         return discord.Embed(
-            title="🎲 賭博会",
+            title=f"🎲 {self.title}",
             description=(
                 f"主催者：{self.host.display_name}\n"
                 f"掛け金：**{self.amount:,}** wp / 人\n\n"
@@ -199,6 +202,7 @@ class WinnerSelect(discord.ui.Select):
         winner_id = int(self.values[0])
         winner = self.gamble.participants[winner_id]
         pot = self.gamble.pot
+        amount = self.gamble.amount
 
         ref = db.collection("users").document(str(winner_id))
         new_val = _add_points(db.transaction(), ref, pot)
@@ -210,14 +214,26 @@ class WinnerSelect(discord.ui.Select):
             view=self.parent_view,
         )
 
+        lines = []
+        for user_id, member in self.gamble.participants.items():
+            if user_id == winner_id:
+                net = pot - amount
+                lines.append(f"🏆 **{member.display_name}**：+{net:,} wp（総取り {pot:,} − 掛け金 {amount:,}）")
+            else:
+                lines.append(f"　{member.display_name}：-{amount:,} wp")
+
+        await interaction.channel.send(
+            f"📊 「{self.gamble.title}」の結果\n" + "\n".join(lines)
+        )
+
 
 class Gamble(commands.Cog):
     def __init__(self, bot: discord.Client):
         self.bot = bot
 
     @app_commands.command(name="gamble", description="賭博会を開始します（同じ通話部屋の人が参加できます）")
-    @app_commands.describe(amount="1人あたりの掛け金（わくせいポイント）")
-    async def gamble(self, interaction: discord.Interaction, amount: int):
+    @app_commands.describe(amount="1人あたりの掛け金（わくせいポイント）", title="賭博会のタイトル（省略可、例：賭けマージャン会）")
+    async def gamble(self, interaction: discord.Interaction, amount: int, title: Optional[str] = None):
         host = interaction.user
         if not isinstance(host, discord.Member):
             return await interaction.response.send_message("エラーが発生しました。", ephemeral=True)
@@ -229,7 +245,7 @@ class Gamble(commands.Cog):
         if voice_state is None or voice_state.channel is None:
             return await interaction.response.send_message("通話部屋に入ってから実行してください。", ephemeral=True)
 
-        view = GambleView(host, amount, voice_state.channel.id)
+        view = GambleView(host, amount, voice_state.channel.id, title)
         await interaction.response.send_message(embed=view.build_embed(), view=view)
         view.message = await interaction.original_response()
 
