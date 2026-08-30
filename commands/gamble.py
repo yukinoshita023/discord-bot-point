@@ -30,7 +30,7 @@ def _add_points(tx, ref, amount: int) -> int:
 
 class GambleView(discord.ui.View):
     def __init__(self, host: discord.Member, amount: int, voice_channel_id: int, title: Optional[str] = None):
-        super().__init__(timeout=1800)  # 30分
+        super().__init__(timeout=3600)  # 1時間
         self.host = host
         self.amount = amount
         self.voice_channel_id = voice_channel_id
@@ -51,7 +51,8 @@ class GambleView(discord.ui.View):
             title=f"🎲 {self.title}",
             description=(
                 f"主催者：{self.host.display_name}\n"
-                f"掛け金：**{self.amount:,}** wp / 人\n\n"
+                f"掛け金：**{self.amount:,}** wp / 人\n"
+                f"受付時間：**1時間**\n\n"
                 f"**参加者（{len(self.participants)}人）**\n{names}"
             ),
             color=discord.Color.gold(),
