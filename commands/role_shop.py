@@ -37,14 +37,23 @@ class BuyRoleButton(discord.ui.Button):
         @gcf.transactional
         def _tx(tx, docref):
             snap = docref.get(transaction=tx)
-            cur = int((snap.to_dict() or {}).get("points", {}).get(WAKUSEI_KEY, 0)) if snap.exists else 0
-            if cur < REQUIRED_POINTS:
-                return None, cur
+            data = snap.to_dict() or {}
+            cur = int(data.get("points", {}).get(WAKUSEI_KEY, 0))
+            debt = int(data.get("debt", {}).get("amount", 0))
+            if debt > 0 or cur < REQUIRED_POINTS:
+                return None, cur, debt
             new_val = cur - REQUIRED_POINTS
             tx.set(docref, {"points": {WAKUSEI_KEY: new_val}}, merge=True)
-            return new_val, cur
+            return new_val, cur, debt
 
-        new_val, cur = _tx(db.transaction(), ref)
+        new_val, cur, debt = _tx(db.transaction(), ref)
+
+        if debt > 0:
+            return await interaction.response.send_message(
+                f"借金があるためPLANETロールは購入できません。\n"
+                f"残債：**{debt:,} wp**（`/repay` で返済できます）",
+                ephemeral=True,
+            )
 
         if new_val is None:
             needed = REQUIRED_POINTS - cur

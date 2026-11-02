@@ -1,3 +1,4 @@
+from google.cloud import firestore as gcf
 from firebase_config import db
 from config import CATEGORY_VC_MAPPING
 import discord
@@ -50,16 +51,9 @@ async def grant_points_loop(user_id):
             guild = user_states[user_id]["guild"]
 
             user_ref = db.collection("users").document(user_id)
-            doc = user_ref.get()
-
-            if doc.exists:
-                data = doc.to_dict()
-                points = data.get("points", {})
-            else:
-                points = {}
 
             # カテゴリ別ポイントは時間情報のため、ブースターに関わらず5分ごとに+1固定
-            points[category_name] = points.get(category_name, 0) + 1
+            points = {category_name: gcf.Increment(1)}
 
             # わくせいポイントは従来どおり10分（tick 2回）ごとに付与
             if tick % 2 == 0:
@@ -68,7 +62,7 @@ async def grant_points_loop(user_id):
                 wakusei_gain = 20 * multiplier
 
                 WAKUSEI_KEY = "わくせい"
-                points[WAKUSEI_KEY] = points.get(WAKUSEI_KEY, 0) + wakusei_gain
+                points[WAKUSEI_KEY] = gcf.Increment(wakusei_gain)
 
             user_ref.set({"points": points}, merge=True)
 

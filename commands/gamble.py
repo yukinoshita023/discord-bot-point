@@ -183,12 +183,16 @@ class WinnerSelectView(discord.ui.View):
                 pass
 
 
+VOID_VALUE = "__void__"
+
+
 class WinnerSelect(discord.ui.Select):
     def __init__(self, gamble: GambleView, parent_view: WinnerSelectView):
         options = [
             discord.SelectOption(label=member.display_name, value=str(user_id))
             for user_id, member in gamble.participants.items()
         ]
+        options.append(discord.SelectOption(label="無効試合（全員に返金）", value=VOID_VALUE, emoji="🚫"))
         super().__init__(placeholder="勝者を選択してください", options=options)
         self.gamble = gamble
         self.parent_view = parent_view
@@ -198,7 +202,19 @@ class WinnerSelect(discord.ui.Select):
             return await interaction.response.send_message("主催者だけが選択できます。", ephemeral=True)
 
         if self.parent_view.resolved:
-            return await interaction.response.send_message("すでに勝者が決定しています。", ephemeral=True)
+            return await interaction.response.send_message("すでに結果が確定しています。", ephemeral=True)
+
+        if self.values[0] == VOID_VALUE:
+            for user_id in self.gamble.participants:
+                ref = db.collection("users").document(str(user_id))
+                _add_points(db.transaction(), ref, self.gamble.amount)
+
+            self.parent_view.resolved = True
+            self.disabled = True
+            return await interaction.response.edit_message(
+                content=f"🚫 「{self.gamble.title}」は無効試合として、参加者全員に掛け金を返金しました。",
+                view=self.parent_view,
+            )
 
         winner_id = int(self.values[0])
         winner = self.gamble.participants[winner_id]
