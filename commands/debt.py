@@ -6,7 +6,7 @@ from firebase_config import db
 from config import DEBTOR_ROLE_ID
 
 WAKUSEI_KEY = "わくせい"
-DEBT_LIMIT = 3000
+DEBT_LIMIT = 10000
 
 
 def _read_balances(snap) -> tuple[int, int]:
